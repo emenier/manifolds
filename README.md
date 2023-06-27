@@ -1,6 +1,36 @@
-```python
+# Non Linear Manifold Identification
 
+
+```python
+%matplotlib inline
+import os 
+#import ipyparams
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+import sklearn
+import sklearn.datasets as ds
+from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.neighbors import NearestNeighbors
+from sklearn import manifold
+import scipy
+from scipy.linalg import eigh
+from tqdm import tqdm
+import torch
+import torch.nn as nn
+from torch.utils.data import TensorDataset, DataLoader
+matplotlib.rcParams.update({'font.size': 20})
+seed = 1337 # Highly optimised seed for isomap computation speed.
+np.random.seed(seed)
+torch.manual_seed(seed)
 ```
+
+
+
+
+    <torch._C.Generator at 0x7ff9e3a6bbd0>
+
+
 
 ## Dataset
 
@@ -21,13 +51,13 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f9f92bfc880>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7ff9e23394f0>
 
 
 
 
     
-![png](manifold_identification_files/manifold_identification_2_1.png)
+![png](manifold_identification_files/manifold_identification_3_1.png)
     
 
 
@@ -76,7 +106,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_7735/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_11184/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -84,7 +114,7 @@ plot_one(X,indexes,centers)
 
 
     
-![png](manifold_identification_files/manifold_identification_4_1.png)
+![png](manifold_identification_files/manifold_identification_5_1.png)
     
 
 
@@ -103,20 +133,20 @@ plt.xticks([]); plt.yticks([]); ax.set_zticks([])
 ax = fig.add_subplot(1,2,2)
 ax.scatter(*pca,c=coloring,cmap=plt.cm.jet)
 plt.xticks([]); plt.yticks([])
-plt.xlabel(r'$POD_1$')
-plt.ylabel(r'$POD_2$')
+plt.xlabel(r'$PCA_1$')
+plt.ylabel(r'$PCA_2$')
 ```
 
 
 
 
-    Text(0, 0.5, '$POD_2$')
+    Text(0, 0.5, '$PCA_2$')
 
 
 
 
     
-![png](manifold_identification_files/manifold_identification_6_1.png)
+![png](manifold_identification_files/manifold_identification_7_1.png)
     
 
 
@@ -176,7 +206,7 @@ plt.ylabel(r'$DM_2$')
 
 
     
-![png](manifold_identification_files/manifold_identification_8_1.png)
+![png](manifold_identification_files/manifold_identification_9_1.png)
     
 
 
@@ -233,7 +263,7 @@ plt.xlabel(r'$LLE_1$'); plt.ylabel(r'$LLE_2$')
 
 
     
-![png](manifold_identification_files/manifold_identification_10_1.png)
+![png](manifold_identification_files/manifold_identification_11_1.png)
     
 
 
@@ -294,7 +324,7 @@ plt.xlabel(r'$ISO_1$'); plt.ylabel(r'$ISO_2$')
 
 
     
-![png](manifold_identification_files/manifold_identification_12_2.png)
+![png](manifold_identification_files/manifold_identification_13_2.png)
     
 
 
@@ -338,19 +368,19 @@ plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:33<00:00, 29.85it/s]
+    100%|██████████| 1000/1000 [00:22<00:00, 45.20it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7f9f91310430>]
+    [<matplotlib.lines.Line2D at 0x7ff9e0a599d0>]
 
 
 
 
     
-![png](manifold_identification_files/manifold_identification_14_2.png)
+![png](manifold_identification_files/manifold_identification_15_2.png)
     
 
 
@@ -382,7 +412,7 @@ ax.set_title('Reconstruction')
 
 
     
-![png](manifold_identification_files/manifold_identification_15_1.png)
+![png](manifold_identification_files/manifold_identification_16_1.png)
     
 
 
@@ -395,7 +425,7 @@ fs = 20
 arrays = [pca.T,isomap,diffmap,lle,autoenc]
 titles = ['PCA','Isomap','Diffusion Map','LLE','AutoEncoder']
 
-fig = plt.figure(figsize=(4*(1+len(arrays)),5))
+fig = plt.figure(figsize=(5*(1+len(arrays)),5))
 ax = fig.add_subplot(1,len(arrays)+1,1,projection='3d')
 ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 plt.xticks([]); plt.yticks([]); ax.set_zticks([])
@@ -409,7 +439,7 @@ for i,(arr,titl) in enumerate(zip(arrays,titles)):
 
 
     
-![png](manifold_identification_files/manifold_identification_17_0.png)
+![png](manifold_identification_files/manifold_identification_18_0.png)
     
 
 
@@ -417,6 +447,7 @@ for i,(arr,titl) in enumerate(zip(arrays,titles)):
 
 
 ```python
+os.system('rm manifold_identification_files/*')
 os.system('jupyter nbconvert --to markdown manifold_identification.ipynb')
 os.system('mv manifold_identification.md README.md')
 
@@ -430,7 +461,8 @@ os.system('mv manifold_identification.md README.md')
     [NbConvertApp] Making directory manifold_identification_files
     [NbConvertApp] Making directory manifold_identification_files
     [NbConvertApp] Making directory manifold_identification_files
-    [NbConvertApp] Writing 10715 bytes to manifold_identification.md
+    [NbConvertApp] Making directory manifold_identification_files
+    [NbConvertApp] Writing 10939 bytes to manifold_identification.md
 
 
 
