@@ -28,7 +28,7 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7f811793ac70>
+    <torch._C.Generator at 0x7fdce0eb5b90>
 
 
 
@@ -51,7 +51,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f81162151f0>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7fdcdf773fd0>
 
 
 
@@ -106,7 +106,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_11546/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_12567/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -368,7 +368,21 @@ plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-     80%|███████▉  | 798/1000 [00:25<00:04, 45.65it/s]
+    100%|██████████| 1000/1000 [00:25<00:00, 39.11it/s]
+
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x7fdcddacc580>]
+
+
+
+
+    
+![png](manifold_identification_files/manifold_identification_15_2.png)
+    
+
 
 
 ```python
@@ -388,6 +402,19 @@ ax.scatter(*decoded.T,c=coloring,cmap=plt.cm.jet,alpha=0.6)
 plt.xticks([]); plt.yticks([]); ax.set_zticks([])
 ax.set_title('Reconstruction')
 ```
+
+
+
+
+    Text(0.5, 0.92, 'Reconstruction')
+
+
+
+
+    
+![png](manifold_identification_files/manifold_identification_16_1.png)
+    
+
 
 ## Side by Side
 
@@ -410,7 +437,19 @@ for i,(arr,titl) in enumerate(zip(arrays,titles)):
     plt.xticks([]); plt.yticks([])
 ```
 
+
+    
+![png](manifold_identification_files/manifold_identification_18_0.png)
+    
+
+
 ## Creating Readme
+
+
+```javascript
+%%javascript
+IPython.notebook.save_notebook()
+```
 
 
 ```python
