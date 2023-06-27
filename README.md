@@ -1,7 +1,9 @@
 # Non Linear Manifold Identification
 
 The critical idea of dimensionality reduction is that most datasets are represented with a higher number of variables than strictly necessary. That is to say, data points lie on data manifolds that have a low *intrinsic* dimension, and can thus be represented using a low number of features. The issue is that these low-dimensional representations are not known *a-priori* and often need to be extracted from data. This makes dimensionality reduction a very efficient pre-processing step to most machine learning algorithm as it makes for much better organised and compact datasets, simplifying learning problems and reducing computational costs.
-
+</br>
+</br>
+</br>
 This notebook contains an example of some methods for non linear manifold analysis :
 
 * K means
@@ -10,6 +12,11 @@ This notebook contains an example of some methods for non linear manifold analys
 * Isomaps
 * Neural AutoEncoder
 * PCA (linear) for comparison
+</br>
+</br>
+</br>
+
+Note that the methods presented here are better implemented  in most ML packages, the goal here is to give an idea of the way each method works.
 
 
 ```python
@@ -38,7 +45,7 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7f78550b7c50>
+    <torch._C.Generator at 0x7f2c4113ebd0>
 
 
 
@@ -63,7 +70,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f78539fae20>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f2c3f9fbf70>
 
 
 
@@ -75,6 +82,11 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 ## K means
 
+Not a manifold identification method *per-se*, the K means method construct clusters which separates the data manifold into groups of spatially close points.
+</br>
+</br>
+</br>
+***Algorithm Idea:*** Iteratively assign each point to the closest cluster and move the cluster to the barycenters of the assigned points until convergence.
 
 
 ```python
@@ -106,6 +118,7 @@ while diff > 1e-4:
             centers[i] = barycenters
 indexes = compute_cluster_indexes(X,centers)
 
+# Plotting
 def plot_one(X,indexes,centers):
     ax.scatter(*X.T,c=indexes,alpha=0.5,cmap=plt.cm.jet)
     for c in centers:
@@ -119,7 +132,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_32212/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_21385/1697488287.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -133,13 +146,23 @@ plot_one(X,indexes,centers)
 
 ## PCA
 
+Principal Component Analysis is the most common dimensionality reduction algorithm, however, it's efficacy is limited in the case of strongly non-linear manifolds, as is the case here.
+</br>
+</br>
+</br>
+***Algorithm Idea:*** Identify linear correlations between features through the eigendecomposition of the data covariance matrix (equivalent to the SVD of the data matrix) to obtain the most expressive directions in the feature space.
+
 
 ```python
+# Centering
 mean_field = X.mean(0).reshape(-1,1)
+# SVD of the data
 U,s,V = np.linalg.svd(X.T-mean_field)
 pca = U[:,:2].T.dot(X.T)
+# PCA allows for the simple reconstruction of the data
 reconstruction = U[:,:2].dot(pca) + mean_field
 
+# Plotting
 fig = plt.figure(figsize=(20,5))
 ax = fig.add_subplot(1,3,1,projection='3d')
 ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
@@ -173,6 +196,14 @@ plt.title('Reconstruction')
 
 ## Diffusion maps
 
+Diffusion maps are a nonlinear reduction methods that constructs a low dimensional embedding based on the euclidean distance between data points.  
+</br>
+</br>
+</br>
+***Algorithm Idea:*** Construct a Markov transition matrix as the probability of one point to *jump* to another based on their euclidean distance. The eigendecomposition of the transition probability matrix yields a suitable embedding of the data
+</br>
+</br>
+</br>
 [Tutorial](https://inside.mines.edu/~whereman/talks/delaPorte-Herbst-Hereman-vanderWalt-DiffusionMaps-PRASA2008.pdf)
 
 [Kaggle Example](https://www.kaggle.com/code/rahulrajpl/diffusion-map-for-manifold-learning)
@@ -182,7 +213,7 @@ plt.title('Reconstruction')
 # Distances
 dists = euclidean_distances(X,X)
 def get_coords(eps):
-    # Kernel
+    # Gaussian Kernel
     K = np.exp(-dists**2/eps)
     # Probability (Kernel normalisation)
     r = K.sum(0)
@@ -194,6 +225,7 @@ def get_coords(eps):
     P_prime = np.matmul(D_right, np.matmul(P,D_left))
     # Eigendecomposition
     eigvals, V = eigh(P_prime)
+    # Bottom eigenvectors of the normalised kernel yield the low dimensional embedding
     idx = eigvals.argsort()[::-1]
     eigvals = eigvals[idx]
     V = V[:,idx]
@@ -203,7 +235,7 @@ def get_coords(eps):
 
 diffmap = get_coords(0.05)
 
-
+# Plotting
 fig = plt.figure(figsize=(15,5))
 ax = fig.add_subplot(1,2,1,projection='3d')
 ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
@@ -231,6 +263,15 @@ plt.ylabel(r'$DM_2$')
 
 
 ## Locally Linear Embedding
+
+Locally Linear Embeddings are a nonlinear reduction method that leverages the local *smoothness* of the attractor to construct a low dimensional embedding of the data. The idea can be seen as cutting out small patches of the attractor to arrange them in a lower dimensional space, similar to the way we draw maps of the world in two dimensions.
+</br>
+</br>
+</br>
+***Algorithm Idea:*** Express each data point as a linear combination of it's neighbors. The weights obtained represent the local relationships between points on the attractor. Low dimensional coordinates are computed so that these relationships are conserved in the low dimensional embedding of the data.
+</br>
+</br>
+</br>
 [Tutorial](https://cs.nyu.edu/~roweis/lle/papers/lleintro.pdf)
 
 [Kaggle example](https://www.kaggle.com/code/ukveteran/locally-linear-embedding-swiss-roll-data-jma/notebook)
@@ -257,12 +298,14 @@ for i,(n,dif) in enumerate(zip(neighbours_mat,diff)):
     C = C+np.identity(n_neighbors)*1e-4*np.trace(C)
     c_inv = np.linalg.inv(C)
     W[i][n] = c_inv.sum(1)/c_inv.sum()
-# Eigenvectors computation
+    
+# Eigenvectors computation / Leading eigenvectors are the low dimensional coordinates
 M = np.matmul((np.eye(X.shape[0])-W).T,(np.eye(X.shape[0])-W))
 eigvals, eigvecs = eigh(M)
 index = np.argsort(eigvals)
 lle = eigvecs[:,index[1:3]]*np.sqrt(X.shape[0])
 
+# Plotting
 fig = plt.figure(figsize=(15,5))
 ax = fig.add_subplot(1,2,1,projection='3d')
 ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
@@ -289,6 +332,12 @@ plt.xlabel(r'$LLE_1$'); plt.ylabel(r'$LLE_2$')
 
 ## Isomap
 
+Isomaps are based on Multi Dimensional Scaling, a non linear dimensionality reduction method that strives to conserve distances between points in the low dimensional embedding. The specificity is that isomaps conserve the geodesic distance along the attractor, rather than the euclidean distance.
+</br>
+</br>
+</br>
+***Algorithm Idea:*** Compute the geodesic distance on the attractor using the nearest neighbor graph and a shortest path algorithm, then minimise the embedding stress, that is the difference between the computed geodesic distances and the euclidean distances in the embedded space.
+
 
 ```python
 # KNN
@@ -305,7 +354,7 @@ distances, pred = scipy.sparse.csgraph.dijkstra(graph,return_predecessors=True,d
 #Stress optimisation (MDS)
 isomap,_ = manifold.smacof(distances)
 
-# Constructing geodesic path
+# Constructing geodesic path for plot
 high, low = np.argmax(coloring), np.argmin(coloring)
 points_hi = [high]
 points_lo = [low]
@@ -315,6 +364,7 @@ while points_hi[-1] != points_lo[-1]:
     points_lo.append(pred[hi,lo])
 path = points_hi+points_lo[::-1]
 
+# Plotting
 fig = plt.figure(figsize=(15,5))
 ax = fig.add_subplot(1,2,1,projection='3d',elev=15, azim=75)
 ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet,alpha=0.6)
@@ -350,51 +400,61 @@ plt.xlabel(r'$ISO_1$'); plt.ylabel(r'$ISO_2$')
 
 ## Neural Network
 
+Neural Networks are universal function approximators. They can be used to learn the map from the data to a low dimensional embedding space. They also allow for simple reconstruction from the embedded space.
+</br>
+</br>
+</br>
+***Algorithm Idea:*** Minimise the expected reconstruction error after passing the data points through the encoder and decoder parts of the network. The embedding coordinates correspond to the output of the encoder network.
+
+
 
 ```python
+# GPU availability
 if torch.cuda.is_available(): dev=torch.device('cuda')
 else: dev = torch.device('cpu')
     
 X_torch = torch.tensor(X,dtype=torch.float).to(dev)
-dz = 2
+# Model Definition
+dz = 2 # embedding dimension
 width = 64; act = nn.ReLU()
 Enc = nn.Sequential(nn.Linear(X.shape[-1],width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
-                   nn.Linear(width,dz)).to(dev)
+                   nn.Linear(width,dz)).to(dev) # Encoder
 Dec = nn.Sequential(nn.Linear(dz,width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
-                   nn.Linear(width,X.shape[-1])).to(dev)
-opt = torch.optim.Adam(list(Enc.parameters())+list(Dec.parameters()),lr=1e-3)
-loader = DataLoader(TensorDataset(X_torch),batch_size=256)
-lossfunc = nn.MSELoss()
+                   nn.Linear(width,X.shape[-1])).to(dev) # Decoder
+opt = torch.optim.Adam(list(Enc.parameters())+list(Dec.parameters()),lr=1e-3) # Optimizer
+loader = DataLoader(TensorDataset(X_torch),batch_size=256) # Data loader, in this case we map X to X
+lossfunc = nn.MSELoss() # Simple mean squared error loss
 losses = []
 for j in tqdm(range(1000)):
     for i, (x,) in enumerate(loader):
         opt.zero_grad()
-        loss = lossfunc(Dec(Enc(x)),x)
-        loss.backward()
-        opt.step()
+        loss = lossfunc(Dec(Enc(x)),x) # Reconstruction error
+        loss.backward() # Gradient computation
+        opt.step() # Descent step
         losses.append(loss.item())
-autoenc = Enc(X_torch)
-decoded = Dec(autoenc).detach().cpu().numpy()
+autoenc = Enc(X_torch) # Final embedding
+decoded = Dec(autoenc).detach().cpu().numpy() # Reconstruction
 autoenc = autoenc.detach().cpu().numpy()
 
+# Plotting
 plt.figure(figsize=(16,6))
 plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:22<00:00, 43.68it/s]
+    100%|██████████| 1000/1000 [00:23<00:00, 42.63it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7f785210da60>]
+    [<matplotlib.lines.Line2D at 0x7f2c3e113700>]
 
 
 
