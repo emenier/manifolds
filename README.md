@@ -1,35 +1,8 @@
 ```python
-%matplotlib inline
-import os 
-#import ipyparams
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import sklearn
-import sklearn.datasets as ds
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.neighbors import NearestNeighbors
-from sklearn import manifold
-import scipy
-from scipy.linalg import eigh
-from tqdm import tqdm
-import torch
-import torch.nn as nn
-from torch.utils.data import TensorDataset, DataLoader
-matplotlib.rcParams.update({'font.size': 20})
-seed = 1337 # Highly optimised seed for isomap computation speed.
-np.random.seed(seed)
-torch.manual_seed(seed)
+
 ```
 
-
-
-
-    <torch._C.Generator at 0x7f7e22ee1cb0>
-
-
-
-# Dataset
+## Dataset
 
 
 ```python
@@ -48,7 +21,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f7e217a2d90>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f9f92bfc880>
 
 
 
@@ -58,7 +31,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
     
 
 
-# K means
+## K means
 
 
 ```python
@@ -103,7 +76,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_5340/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_7735/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -115,7 +88,7 @@ plot_one(X,indexes,centers)
     
 
 
-# PCA
+## PCA
 
 
 ```python
@@ -147,7 +120,8 @@ plt.ylabel(r'$POD_2$')
     
 
 
-# Diffusion maps
+## Diffusion maps
+
 [Tutorial](https://inside.mines.edu/~whereman/talks/delaPorte-Herbst-Hereman-vanderWalt-DiffusionMaps-PRASA2008.pdf)
 
 [Kaggle Example](https://www.kaggle.com/code/rahulrajpl/diffusion-map-for-manifold-learning)
@@ -206,7 +180,7 @@ plt.ylabel(r'$DM_2$')
     
 
 
-# Locally Linear Embedding
+## Locally Linear Embedding
 [Tutorial](https://cs.nyu.edu/~roweis/lle/papers/lleintro.pdf)
 
 [Kaggle example](https://www.kaggle.com/code/ukveteran/locally-linear-embedding-swiss-roll-data-jma/notebook)
@@ -263,7 +237,7 @@ plt.xlabel(r'$LLE_1$'); plt.ylabel(r'$LLE_2$')
     
 
 
-# Isomap
+## Isomap
 
 
 ```python
@@ -324,23 +298,26 @@ plt.xlabel(r'$ISO_1$'); plt.ylabel(r'$ISO_2$')
     
 
 
-# Neural Network
+## Neural Network
 
 
 ```python
-X_torch = torch.tensor(X,dtype=torch.float).cuda()
+if torch.cuda.is_available(): dev=torch.device('cuda')
+else: dev = torch.device('cpu')
+    
+X_torch = torch.tensor(X,dtype=torch.float).to(dev)
 dz = 2
-width = 256; act = nn.ReLU()
+width = 64; act = nn.ReLU()
 Enc = nn.Sequential(nn.Linear(X.shape[-1],width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
-                   nn.Linear(width,dz)).cuda()
+                   nn.Linear(width,dz)).to(dev)
 Dec = nn.Sequential(nn.Linear(dz,width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
                    nn.Linear(width,width),act,
-                   nn.Linear(width,X.shape[-1])).cuda()
+                   nn.Linear(width,X.shape[-1])).to(dev)
 opt = torch.optim.Adam(list(Enc.parameters())+list(Dec.parameters()),lr=1e-3)
 loader = DataLoader(TensorDataset(X_torch),batch_size=256)
 lossfunc = nn.MSELoss()
@@ -352,18 +329,28 @@ for j in tqdm(range(1000)):
         loss.backward()
         opt.step()
         losses.append(loss.item())
-plt.semilogy(losses)
 autoenc = Enc(X_torch)
 decoded = Dec(autoenc).detach().cpu().numpy()
 autoenc = autoenc.detach().cpu().numpy()
+
+plt.figure(figsize=(16,6))
+plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
+plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:37<00:00, 26.91it/s]
+    100%|██████████| 1000/1000 [00:33<00:00, 29.85it/s]
+
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x7f9f91310430>]
+
 
 
 
     
-![png](manifold_identification_files/manifold_identification_14_1.png)
+![png](manifold_identification_files/manifold_identification_14_2.png)
     
 
 
@@ -399,7 +386,7 @@ ax.set_title('Reconstruction')
     
 
 
-# Side by Side
+## Side by Side
 
 
 ```python
@@ -426,10 +413,29 @@ for i,(arr,titl) in enumerate(zip(arrays,titles)):
     
 
 
-# Creating Readme
+## Creating Readme
 
 
 ```python
 os.system('jupyter nbconvert --to markdown manifold_identification.ipynb')
-os.system('embed-images manifold_identification.md > ' + ipyparams.notebook_name[:-6] + '_emb.md')
+os.system('mv manifold_identification.md README.md')
+
 ```
+
+    [NbConvertApp] WARNING | Config option `kernel_spec_manager_class` not recognized by `NbConvertApp`.
+    [NbConvertApp] Converting notebook manifold_identification.ipynb to markdown
+    [NbConvertApp] Support files will be in manifold_identification_files/
+    [NbConvertApp] Making directory manifold_identification_files
+    [NbConvertApp] Making directory manifold_identification_files
+    [NbConvertApp] Making directory manifold_identification_files
+    [NbConvertApp] Making directory manifold_identification_files
+    [NbConvertApp] Making directory manifold_identification_files
+    [NbConvertApp] Writing 10715 bytes to manifold_identification.md
+
+
+
+
+
+    0
+
+
