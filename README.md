@@ -1,6 +1,6 @@
 # Non Linear Manifold Identification
 
-This notebook contains an example of some methods on non linear dimensionality manifold analysis :
+This notebook contains an example of some methods on non linear manifold analysis :
 
 * K means
 * Diffusion Maps
