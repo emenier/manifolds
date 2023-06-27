@@ -36,7 +36,7 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7fba0a1eabd0>
+    <torch._C.Generator at 0x7f6e6a119c90>
 
 
 
@@ -59,7 +59,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7fba08ab14f0>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f6e68a5e6d0>
 
 
 
@@ -114,7 +114,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_12900/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_13988/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -130,25 +130,33 @@ plot_one(X,indexes,centers)
 
 
 ```python
-U,s,V = np.linalg.svd(X.T-X.mean(0).reshape(-1,1))
+mean_field = X.mean(0).reshape(-1,1)
+U,s,V = np.linalg.svd(X.T-mean_field)
 pca = U[:,:2].T.dot(X.T)
+reconstruction = U[:,:2].dot(pca) + mean_field
 
-fig = plt.figure(figsize=(15,5))
-ax = fig.add_subplot(1,2,1,projection='3d')
+fig = plt.figure(figsize=(20,5))
+ax = fig.add_subplot(1,3,1,projection='3d')
 ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 plt.xticks([]); plt.yticks([]); ax.set_zticks([])
+plt.title('Data')
 
-ax = fig.add_subplot(1,2,2)
+ax = fig.add_subplot(1,3,2)
 ax.scatter(*pca,c=coloring,cmap=plt.cm.jet)
 plt.xticks([]); plt.yticks([])
 plt.xlabel(r'$PCA_1$')
 plt.ylabel(r'$PCA_2$')
+
+ax = fig.add_subplot(1,3,3,projection='3d')
+ax.scatter(*reconstruction,c=coloring,cmap=plt.cm.jet)
+plt.xticks([]); plt.yticks([]); ax.set_zticks([])
+plt.title('Reconstruction')
 ```
 
 
 
 
-    Text(0, 0.5, '$PCA_2$')
+    Text(0.5, 0.92, 'Reconstruction')
 
 
 
@@ -375,13 +383,13 @@ plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:35<00:00, 27.96it/s]
+    100%|██████████| 1000/1000 [00:24<00:00, 40.96it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7fba081b6ac0>]
+    [<matplotlib.lines.Line2D at 0x7f6e680c7670>]
 
 
 
