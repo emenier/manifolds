@@ -1,6 +1,6 @@
 # Non Linear Manifold Identification
 
-This notebook contains an example of some methods on non linear manifold analysis :
+This notebook contains an example of some methods for non linear manifold analysis :
 
 * K means
 * Diffusion Maps
@@ -36,7 +36,7 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7f6e6a119c90>
+    <torch._C.Generator at 0x7ffa489cbc70>
 
 
 
@@ -59,7 +59,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f6e68a5e6d0>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7ffa4731f190>
 
 
 
@@ -114,7 +114,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_13988/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_17153/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -383,13 +383,13 @@ plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:24<00:00, 40.96it/s]
+    100%|██████████| 1000/1000 [00:23<00:00, 43.09it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7f6e680c7670>]
+    [<matplotlib.lines.Line2D at 0x7ffa45659a90>]
 
 
 
