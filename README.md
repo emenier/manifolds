@@ -1,10 +1,18 @@
 # Non Linear Manifold Identification
 
+This notebook contains an example of some methods on non linear dimensionality manifold analysis :
+
+* K means
+* Diffusion Maps
+* Locally Linear Embeddings
+* Isomaps
+* Neural AutoEncoder
+* PCA (linear) for comparison
+
 
 ```python
 %matplotlib inline
 import os 
-#import ipyparams
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -20,7 +28,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 matplotlib.rcParams.update({'font.size': 20})
-seed = 1337 # Highly optimised seed for isomap computation speed.
+seed = 1337 # Highly optimised seed for isomap computation speed :)
 np.random.seed(seed)
 torch.manual_seed(seed)
 ```
@@ -28,7 +36,7 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7fdce0eb5b90>
+    <torch._C.Generator at 0x7fba0a1eabd0>
 
 
 
@@ -51,7 +59,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7fdcdf773fd0>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7fba08ab14f0>
 
 
 
@@ -106,7 +114,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_12567/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_12900/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -163,11 +171,10 @@ dists = euclidean_distances(X,X)
 def get_coords(eps):
     # Kernel
     K = np.exp(-dists**2/eps)
+    # Probability (Kernel normalisation)
     r = K.sum(0)
     D = np.diag(1/r)
-    # Probability (Kernel normalisation)
     P = np.matmul(D, K)
-    P.sum(1).mean(),P.sum(1).std() 
     
     D_right = np.diag((r)**0.5)
     D_left = np.diag((r)**-0.5)
@@ -368,13 +375,13 @@ plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:25<00:00, 39.11it/s]
+    100%|██████████| 1000/1000 [00:35<00:00, 27.96it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7fdcddacc580>]
+    [<matplotlib.lines.Line2D at 0x7fba081b6ac0>]
 
 
 
