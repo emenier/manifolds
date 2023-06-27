@@ -1,4 +1,7 @@
 ```python
+%matplotlib inline
+import os 
+#import ipyparams
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -19,14 +22,10 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 ```
 
-    /home/tau/emenier/miniconda3/envs/Py39/lib/python3.9/site-packages/scipy/__init__.py:138: UserWarning: A NumPy version >=1.16.5 and <1.23.0 is required for this version of SciPy (detected version 1.24.2)
-      warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion} is required for this version of "
 
 
 
-
-
-    <torch._C.Generator at 0x7fb976942f70>
+    <torch._C.Generator at 0x7f7e22ee1cb0>
 
 
 
@@ -49,7 +48,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7fb975d429a0>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f7e217a2d90>
 
 
 
@@ -104,9 +103,9 @@ plot_one(X,indexes,centers)
 
 ```
 
-    <ipython-input-1-0414622942ff>:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_5340/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
-    /home/tau/emenier/miniconda3/envs/Py39/lib/python3.9/site-packages/numpy/core/_methods.py:184: RuntimeWarning: invalid value encountered in divide
+    /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
 
 
@@ -308,6 +307,10 @@ plt.xticks([]);plt.yticks([])
 plt.xlabel(r'$ISO_1$'); plt.ylabel(r'$ISO_2$')
 ```
 
+    /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/sklearn/manifold/_mds.py:299: FutureWarning: The default value of `normalized_stress` will change to `'auto'` in version 1.4. To suppress this warning, manually set the value of `normalized_stress`.
+      warnings.warn(
+
+
 
 
 
@@ -317,7 +320,7 @@ plt.xlabel(r'$ISO_1$'); plt.ylabel(r'$ISO_2$')
 
 
     
-![png](manifold_identification_files/manifold_identification_12_1.png)
+![png](manifold_identification_files/manifold_identification_12_2.png)
     
 
 
@@ -355,7 +358,7 @@ decoded = Dec(autoenc).detach().cpu().numpy()
 autoenc = autoenc.detach().cpu().numpy()
 ```
 
-    100%|██████████| 1000/1000 [00:26<00:00, 38.37it/s]
+    100%|██████████| 1000/1000 [00:37<00:00, 26.91it/s]
 
 
 
@@ -422,3 +425,11 @@ for i,(arr,titl) in enumerate(zip(arrays,titles)):
 ![png](manifold_identification_files/manifold_identification_17_0.png)
     
 
+
+# Creating Readme
+
+
+```python
+os.system('jupyter nbconvert --to markdown manifold_identification.ipynb')
+os.system('embed-images manifold_identification.md > ' + ipyparams.notebook_name[:-6] + '_emb.md')
+```
