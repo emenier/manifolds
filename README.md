@@ -45,7 +45,7 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7f2c4113ebd0>
+    <torch._C.Generator at 0x7f5368cb1bd0>
 
 
 
@@ -70,7 +70,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f2c3f9fbf70>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f5367581190>
 
 
 
@@ -86,7 +86,7 @@ Not a manifold identification method *per-se*, the K means method construct clus
 </br>
 </br>
 </br>
-***Algorithm Idea:*** Iteratively assign each point to the closest cluster and move the cluster to the barycenters of the assigned points until convergence.
+***Algorithm Idea:*** Iteratively assign each point to the closest cluster and move the cluster to the barycenter of the assigned points until convergence.
 
 
 ```python
@@ -132,7 +132,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_21385/1697488287.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_22637/1697488287.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -268,7 +268,7 @@ Locally Linear Embeddings are a nonlinear reduction method that leverages the lo
 </br>
 </br>
 </br>
-***Algorithm Idea:*** Express each data point as a linear combination of it's neighbors. The weights obtained represent the local relationships between points on the attractor. Low dimensional coordinates are computed so that these relationships are conserved in the low dimensional embedding of the data.
+***Algorithm Idea:*** Express each data point as a linear combination of its neighbors. The weights obtained represent the local relationships between points on the attractor. Low dimensional coordinates are computed so that these relationships are conserved in the low dimensional embedding of the data.
 </br>
 </br>
 </br>
@@ -448,13 +448,13 @@ plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:23<00:00, 42.63it/s]
+    100%|██████████| 1000/1000 [00:28<00:00, 34.68it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7f2c3e113700>]
+    [<matplotlib.lines.Line2D at 0x7f5365c964f0>]
 
 
 
