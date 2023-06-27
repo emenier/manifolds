@@ -1,5 +1,7 @@
 # Non Linear Manifold Identification
 
+The critical idea of dimensionality reduction is that most datasets are represented with a higher number of variables than strictly necessary. That is to say, data points lie on data manifolds that have a low *intrinsic* dimension, and can thus be represented using a low number of features. The issue is that these low-dimensional representations are not known *a-priori* and often need to be extracted from data. This makes dimensionality reduction a very efficient pre-processing step to most machine learning algorithm as it makes for much better organised and compact datasets, simplifying learning problems and reducing computational costs.
+
 This notebook contains an example of some methods for non linear manifold analysis :
 
 * K means
@@ -36,11 +38,13 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7ffa489cbc70>
+    <torch._C.Generator at 0x7f78550b7c50>
 
 
 
 ## Dataset
+
+A simple two dimensional manifold embedded in a 3-dimensional space is chosen to illustrate the advantages and drawbacks of the presented dimensionality reduction methods.
 
 
 ```python
@@ -59,7 +63,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7ffa4731f190>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f78539fae20>
 
 
 
@@ -70,6 +74,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 ## K means
+
 
 
 ```python
@@ -114,7 +119,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_17153/1089707551.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_32212/1089707551.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -383,13 +388,13 @@ plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:23<00:00, 43.09it/s]
+    100%|██████████| 1000/1000 [00:22<00:00, 43.68it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7ffa45659a90>]
+    [<matplotlib.lines.Line2D at 0x7f785210da60>]
 
 
 
