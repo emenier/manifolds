@@ -24,6 +24,7 @@ Note that the methods presented here are better implemented  in most ML packages
 import os 
 import numpy as np
 import matplotlib
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import sklearn
 import sklearn.datasets as ds
@@ -45,7 +46,7 @@ torch.manual_seed(seed)
 
 
 
-    <torch._C.Generator at 0x7f5368cb1bd0>
+    <torch._C.Generator at 0x7f8a0d2c7bd0>
 
 
 
@@ -70,7 +71,7 @@ ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet)
 
 
 
-    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f5367581190>
+    <mpl_toolkits.mplot3d.art3d.Path3DCollection at 0x7f8a0bb95190>
 
 
 
@@ -132,7 +133,7 @@ plot_one(X,indexes,centers)
 
 ```
 
-    /tmp/ipykernel_22637/1697488287.py:17: RuntimeWarning: Mean of empty slice.
+    /tmp/ipykernel_13925/1697488287.py:17: RuntimeWarning: Mean of empty slice.
       barycenters = X[indexes==i].mean(axis=0)
     /home/tau/emenier/miniconda3/envs/LED/lib/python3.9/site-packages/numpy/core/_methods.py:182: RuntimeWarning: invalid value encountered in divide
       ret = um.true_divide(
@@ -442,19 +443,31 @@ autoenc = Enc(X_torch) # Final embedding
 decoded = Dec(autoenc).detach().cpu().numpy() # Reconstruction
 autoenc = autoenc.detach().cpu().numpy()
 
+# Intermediate states for disentanglement plot
+intermediates = [X_torch.detach().cpu().numpy().T]
+intermediate = X_torch
+for i in range(int(len(Enc)/2)):
+    intermediate = Enc[2*i+1](Enc[i*2](intermediate))
+    interm = intermediate.detach().cpu().numpy().T
+    interm = interm - interm.mean(1).reshape(-1,1)
+    U,s,V = np.linalg.svd(interm)
+    projected = U[:,:3].T.dot(interm)
+    intermediates.append(projected)
+intermediates.append(Enc(X_torch).detach().cpu().numpy().T)
+
 # Plotting
 plt.figure(figsize=(16,6))
 plt.title('Loss'); plt.xlabel('Gradient Descent Steps')
 plt.semilogy(losses)
 ```
 
-    100%|██████████| 1000/1000 [00:28<00:00, 34.68it/s]
+    100%|██████████| 1000/1000 [00:24<00:00, 40.56it/s]
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7f5365c964f0>]
+    [<matplotlib.lines.Line2D at 0x7f8a0a213f40>]
 
 
 
@@ -466,27 +479,54 @@ plt.semilogy(losses)
 
 
 ```python
-fig = plt.figure(figsize=(20,5))
-ax = fig.add_subplot(1,3,1,projection='3d',elev=15, azim=75)
+height_ratio = 2
+sub_wspace, sub_hspace = 0.1, 0.7
+
+fig = plt.figure(figsize=(20,10),dpi=200)
+gs0 = gridspec.GridSpec(height_ratio+1,1,figure=fig,hspace=0.5)
+gs00 = gridspec.GridSpecFromSubplotSpec(1, 3, subplot_spec=gs0[:height_ratio,:],
+                                    wspace=sub_wspace,hspace=sub_hspace)
+
+ax = plt.subplot(gs00[0, 0],projection='3d',elev=15, azim=75)
 ax.scatter(*X.T,c=coloring,cmap=plt.cm.jet,alpha=0.6)
 plt.xticks([]); plt.yticks([]); ax.set_zticks([])
 ax.set_title('Data')
 
-ax = fig.add_subplot(1,3,2)
+ax = plt.subplot(gs00[0, 1])
 plt.scatter(*autoenc.T,c=coloring,cmap=plt.cm.jet)
 plt.xticks([]);plt.yticks([])
 plt.xlabel(r'$AE_1$'); plt.ylabel(r'$AE_2$')
+ax.set_title(r'$z$')
 
-ax = fig.add_subplot(1,3,3,projection='3d',elev=15, azim=75)
+ax = plt.subplot(gs00[0, 2],projection='3d',elev=15, azim=75)
 ax.scatter(*decoded.T,c=coloring,cmap=plt.cm.jet,alpha=0.6)
 plt.xticks([]); plt.yticks([]); ax.set_zticks([])
 ax.set_title('Reconstruction')
+
+
+n_plots = len(intermediates)
+gs10 = gridspec.GridSpecFromSubplotSpec(1, n_plots, subplot_spec=gs0[height_ratio:,:],
+                                    wspace=sub_wspace,hspace=sub_hspace)
+
+for i in range(n_plots-1):
+    ax = plt.subplot(gs10[0,i],projection='3d')
+    ax.scatter(*intermediates[i],c=coloring,cmap=plt.cm.jet)
+    ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([])
+    if i == 0:
+        ax.set_title(r'$x$')
+    else: ax.set_title(r'$\phi_{:}$'.format(i))
+        
+ax = plt.subplot(gs10[0,-1])
+ax.scatter(*intermediates[-1],c=coloring,cmap=plt.cm.jet)
+ax.set_xticks([]); ax.set_yticks([])
+ax.set_title(r'$\Phi(x)$')
+#plt.savefig('../ManuscriptVisuals/AE_performance.png',dpi=200,bbox_inches='tight')
 ```
 
 
 
 
-    Text(0.5, 0.92, 'Reconstruction')
+    Text(0.5, 1.0, '$\\Phi(x)$')
 
 
 
